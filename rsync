@@ -1,0 +1,1 @@
+gcloud auth activate-service-account backup@share-services-228905.iam.gserviceaccount.com --key-file c:\authorization\sqlcloudauth.json
