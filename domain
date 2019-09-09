@@ -1,0 +1,32 @@
+$ErrorActionPreference = "SilentlyContinue"
+$checkDomain = $env:USERDOMAIN
+$domainValue = $checkDomain -eq "domain name"
+if ( $domainvalue -eq "$true")
+{
+    Write-Host "Exit the script"
+    Exit
+  }
+else
+{
+    Set-DnsClientServerAddress -InterfaceAlias Ethernet -ServerAddresses ("DNS IP's")
+    ## Domain admin credential file ##
+    C:\Windows\system32\cmd.exe /C "gsutil cp gs://bucketname/filename.txt C:\Users\Public\Documents"
+    ## Modify the gs path based on the project ##
+    Start-Sleep -s 60
+    $domain = "FQDN of domain name"
+    $strValue = Get-Content -Path C:\Users\Public\Documents\ss.txt
+    $password = "$strValue" | ConvertTo-SecureString -AsPlainText -Force
+    $username = "$domain\domainadminaccount"
+    $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $password
+    Add-Computer -DomainName $domain -Credential $cred 
+    Start-Sleep -s 180
+    $disk = Get-Disk | where-object PartitionStyle -eq "RAW"
+    Initialize-Disk -Number $disk.Number -PartitionStyle MBR -confirm:$false
+    New-Partition -DiskNumber $disk.Number -UseMaximumSize -AssignDriveLetter | Format-Volume -FileSystem NTFS -NewFileSystemLabel "Local Disk" -confirm:$False
+    Start-Sleep -s 60
+    Set-TimeZone -Name "Pacific Standard Time"
+    Add-LocalGroupMember -Group "group1" -Member "domainname\group2"
+    Remove-Item -Path C:\Users\Public\Documents\filename.txt -Force
+    Start-Sleep -s 60
+    Restart-Computer -Force
+    }
